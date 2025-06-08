@@ -1,24 +1,22 @@
 <template>
   <div>
-    <input type="file" id="file" :multiple="true" @change="handleChange" @click.stop>
-    <li class="list-group-item" v-for="(file, index) in uploadFiles" :key="index">
-      <span>{{ file.name }}</span>
-      <span>上传进度</span>
-      <div class="progress progress-striped active" v-if="file.state === 'pending'">
-        <div role="progressbar" class="progress-bar" :style="`width:${percentage}%;`" :aria-valuenow="percentage"
-          aria-valuemin="0" aria-valuemax="100">{{ percentage }}%</div>
-      </div>
-    </li>
+    <button @click="startUpload" @keydown.self.enter.space="handleKeydown">开始上传</button>
+    <input style="display: none;" ref="inputRef" type="file" id="file" :multiple="true" @change="handleChange"
+      @click.stop>
+    <UploadList :uploadFiles="uploadFiles" :percentage="percentage" />
   </div>
 </template>
 <script lang='js' setup name="BigFileUpload">
-import { ref, reactive } from 'vue'
+import { ref, reactive, shallowRef } from 'vue'
+import UploadList from './upload-list.vue'
 defineOptions({
   name: 'BigFileUpload'
 })
+//大型数据结构的性能优化 
+const inputRef = shallowRef()
 const worker = new Worker('../worker.js')
 const chunks = [];
-const props =  defineProps({
+const props = defineProps({
   options: {
     type: Object,
     default: () => {
@@ -35,20 +33,30 @@ const props =  defineProps({
 const uploadFiles = ref([]);
 console.log(props.options);
 
+const handleKeydown = () => {
+  startUpload()
+}
+
+const startUpload = () => {
+  inputRef.value.value = ''
+  inputRef.value.click()
+}
 
 const handleChange = (e) => {
-  const files = e.target.files[0];
-  const fs = files; //读取文件内容
-  console.log(fs.name);
+  // inputRef.value.click()
+  const files = e.target.files;
+  // console.log(e, 'e');
+  const fs = files[0]; //读取文件内容
+  // console.log(fs.name);
   fs.state = 'pending'; //设置文件状态为待上传
 
-  uploadFiles.value = [...uploadFiles.value,fs];
+  uploadFiles.value = [...uploadFiles.value, fs];
   const total = Math.ceil(fs.size / props.options.chunkSize); //切割的总数 也就是我们要掉23次接口
-  console.log(total,'total');
-  
-  //0-5 5-10 10-15 15-20 20-25 将文件分装成5M的块 并放入chunks数组中
+  console.log(total, 'total');
+
+  //0-5 5-10 10-15 15-20 20-25 将文件分装成5M的块 并放入chunks数组中 props.options.chunkSize是按大小多少进行切分
   chunks.push(...Array.from({ length: total }, (_, i) => fs.slice(i * props.options.chunkSize, (i + 1) * props.options.chunkSize)));
-  
+
   console.log(chunks, 'chunks');
   //将切片数组传到web worker，多线程脚本运行上传到后端
   //向worker.js发送消息  worker.js会接收这个消息
@@ -56,14 +64,15 @@ const handleChange = (e) => {
     chunks,
     filename: fs.name,
   });
-  
-  console.log(worker,'worker');
+
+  console.log(worker, 'worker');
 }
 
 const percentage = ref(0);
 
 worker.onmessage = async function (e) {
-  console.log(e,'e');
+  // console.log(e, 'e');
+  inputRef.value.value = ''
   const { filename, hash } = e.data;
   const res = await fetch(`${props.options.checkFileUrl}?hash=${hash}`)
   const { files } = await res.json(); //接收后端反文件，如果后端已存在文件直接将文件返回，如果没有就返回空数组
@@ -74,28 +83,17 @@ worker.onmessage = async function (e) {
     return !set.has(`${filename}-${index}`)
   })
 
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  for (const { chunk, index } of tasks) {
-    const formData = new FormData();
-    formData.append("filename", filename);
-    formData.append("hash", hash);
-    formData.append("index", index);
-    formData.append("file", chunk);
-    await fetch(props.options.uploadFileUrl, {
-      method: "POST",
-      body: formData
-    })
-    // console.log((chunks.length - tasks.length), chunks.length);
-    if (chunks.length === tasks.length) {
-      //这里可以用来更新进度条
-      percentage.value = ((index + 1) / chunks.length).toFixed(2) * 100;
-      // document.querySelector('#result').innerText = `${((index + 1) / chunks.length).toFixed(2) * 100}%`
-    }else{
-      percentage.value = ((((index + 1) + (chunks.length - tasks.length)) / chunks.length).toFixed(2) * 100);
-      // document.querySelector('#result').innerText = `${((((index+1) + (chunks.length - tasks.length)) / chunks.length).toFixed(2) * 100)}%`
-    }
-    await sleep(2000)
+
+  const CONCURRENT_LIMIT = 3; // 并发数
+  const total = tasks.length;
+  for (let i = 0; i < total; i += CONCURRENT_LIMIT) {
+    await Promise.all(
+      tasks.slice(i, i + CONCURRENT_LIMIT)
+        .map((_, idx) => uploadChunk(_.chunk, i + idx, filename, hash,total ))
+    );
+    console.log(`已上传 ${Math.min(i + CONCURRENT_LIMIT, total)}/${total}`);
   }
+
 
   //所有分片上传完毕，开始合并
   await fetch(`${props.options.mergeFileUrl}?hash=${hash}&filename=${filename}`)
@@ -107,62 +105,47 @@ worker.onmessage = async function (e) {
   if (fileIndex !== -1) {
     uploadFiles.value[fileIndex].state = 'uploaded';
   }
+  uploadFiles.value = [...uploadFiles.value];
+  percentage.value = 0; // 重置进度条
+  console.log('所有分片上传完毕，文件已合并');
 }
 
+
+const uploadChunk = async (chunk, index, filename, hash ,total) => {
+  const formData = new FormData();
+  formData.append("filename", filename);
+  formData.append("hash", hash);
+  formData.append("index", index);
+  formData.append("file", chunk);
+  // console.log('上传分片:', index, '文件名:', filename, '哈希值:', hash);
+  return new Promise((resolve) => {
+    fetch(props.options.uploadFileUrl, {
+      method: "POST",
+      body: formData
+    }).then(response => {
+      console.log('上传分片:', index, '响应状态:', response.status);
+      if (response.status === 200) {
+        return resolve(response.json());
+      } else {
+        throw new Error('网络错误');
+      }
+    }).then(data => {
+      // 更新进度条
+      if (chunks.length === total) {
+        //这里可以用来更新进度条
+        percentage.value = ((index + 1) / chunks.length).toFixed(2) * 100;
+      } else {
+        percentage.value = ((((index + 1) + (chunks.length - total)) / chunks.length).toFixed(2) * 100);
+      }
+    }).catch(error => {
+      console.error('上传失败:', error);
+    });
+  })
+
+
+};
 
 </script>
-<style  scoped>
-.progress {
-  height: 15px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
-}
-.progress-bar {
-  float: left;
-  width: 0;
-  height: 100%;
-  font-size: 8px;
-  line-height: 15px;
-  color: #fff;
-  text-align: center;
-  background-color: #428bca;
-  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
-  -webkit-transition: width .6s ease;
-  transition: width .6s ease;
-}
-.progress-striped .progress-bar {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-size: 40px 40px;
-}
+<style scoped>
 
-.progress.active .progress-bar {
-  -webkit-animation: progress-bar-stripes 2s linear infinite;
-  animation: progress-bar-stripes 2s linear infinite;
-}
-
-@-webkit-keyframes progress-bar-stripes {
-  from {
-    background-position: 40px 0;
-  }
-
-  to {
-    background-position: 0 0;
-  }
-}
-
-@keyframes progress-bar-stripes {
-  from {
-    background-position: 40px 0;
-  }
-
-  to {
-    background-position: 0 0;
-  }
-}
 </style>

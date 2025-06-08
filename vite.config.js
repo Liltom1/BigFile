@@ -13,6 +13,7 @@ export default defineConfig({
       entry: path.resolve(__dirname, './src/packages/index.js'), //指定组件编译入口文件
       name: 'bigFileUpload',// name 是暴露的全局变量
       fileName: 'bigFileUpload', //是软件包输出文件的名称
+      formats:['es', 'umd', 'cjs'], //指定库的格式
     }, //库编译模式配置
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖

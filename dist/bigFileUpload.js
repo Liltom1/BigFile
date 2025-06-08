@@ -1,5 +1,13 @@
-import { createElementBlock as k, openBlock as g, createElementVNode as w, withModifiers as F } from "vue";
-const U = /* @__PURE__ */ Object.assign({
+import { shallowRef as z, ref as F, createElementBlock as f, openBlock as g, createElementVNode as v, withKeys as C, withModifiers as x, Fragment as j, renderList as B, createCommentVNode as U, toDisplayString as S, normalizeStyle as K } from "vue";
+const O = (i, t) => {
+  const r = i.__vccOpts || i;
+  for (const [n, o] of t)
+    r[n] = o;
+  return r;
+}, D = ["onKeydown"], E = { key: 0 }, I = {
+  key: 1,
+  class: "progress progress-striped active"
+}, M = ["aria-valuenow"], R = /* @__PURE__ */ Object.assign({
   name: "BigFileUpload"
 }, {
   __name: "index",
@@ -15,43 +23,77 @@ const U = /* @__PURE__ */ Object.assign({
       })
     }
   },
-  setup(h) {
-    const s = new Worker("../worker.js"), c = [], e = h;
-    console.log(e.options);
-    const m = (l) => {
-      const n = l.target.files[0], r = Math.ceil(n.size / e.options.chunkSize);
-      console.log(r, "total"), c.push(...Array.from({ length: r }, (f, p) => n.slice(p * e.options.chunkSize, (p + 1) * e.options.chunkSize))), console.log(c, "chunks"), s.postMessage({
-        chunks: c,
-        filename: n.name
-      }), console.log(s, "worker");
-    };
-    return s.onmessage = async function(l) {
-      console.log(l, "e");
-      const { filename: o, hash: n } = l.data, r = await fetch(`${e.options.checkFileUrl}?hash=${n}`), { files: f } = await r.json(), p = new Set(f), u = c.map((t, i) => ({ chunk: t, index: i })).filter(({ index: t }) => !p.has(`${o}-${t}`)), d = (t) => new Promise((i) => setTimeout(i, t));
-      for (const { chunk: t, index: i } of u) {
-        const a = new FormData();
-        a.append("filename", o), a.append("hash", n), a.append("index", i), a.append("file", t), await fetch(e.options.uploadFileUrl, {
+  setup(i) {
+    const t = z(), r = new Worker("../worker.js"), n = [], o = i, a = F([]);
+    console.log(o.options);
+    const $ = () => {
+      _();
+    }, _ = () => {
+      t.value.value = "", t.value.click();
+    }, b = (c) => {
+      const s = c.target.files;
+      console.log(c, "e");
+      const e = s[0];
+      console.log(e.name), e.state = "pending", a.value = [...a.value, e];
+      const p = Math.ceil(e.size / o.options.chunkSize);
+      console.log(p, "total"), n.push(...Array.from({ length: p }, (w, m) => e.slice(m * o.options.chunkSize, (m + 1) * o.options.chunkSize))), console.log(n, "chunks"), r.postMessage({
+        chunks: n,
+        filename: e.name
+      }), console.log(r, "worker");
+    }, u = F(0);
+    return r.onmessage = async function(c) {
+      console.log(c, "e"), t.value.value = "";
+      const { filename: s, hash: e } = c.data, p = await fetch(`${o.options.checkFileUrl}?hash=${e}`), { files: w } = await p.json(), m = new Set(w), k = n.map((l, d) => ({ chunk: l, index: d })).filter(({ index: l }) => !m.has(`${s}-${l}`));
+      for (const { chunk: l, index: d } of k) {
+        const h = new FormData();
+        h.append("filename", s), h.append("hash", e), h.append("index", d), h.append("file", l), await fetch(o.options.uploadFileUrl, {
           method: "POST",
-          body: a
-        }), await d(2e3);
+          body: h
+        }), n.length === k.length ? u.value = ((d + 1) / n.length).toFixed(2) * 100 : u.value = ((d + 1 + (n.length - k.length)) / n.length).toFixed(2) * 100;
       }
-      await fetch(`${e.options.mergeFileUrl}?hash=${n}&filename=${o}`);
-    }, (l, o) => (g(), k("div", null, [
-      w("input", {
+      await fetch(`${o.options.mergeFileUrl}?hash=${e}&filename=${s}`), n.length = 0;
+      const y = a.value.findIndex((l) => l.name === s);
+      y !== -1 && (a.value[y].state = "uploaded"), a.value = [...a.value];
+    }, (c, s) => (g(), f("div", null, [
+      v("button", {
+        onClick: _,
+        onKeydown: C(x($, ["self"]), ["enter", "space"])
+      }, "开始上传", 40, D),
+      v("input", {
+        style: { display: "none" },
+        ref_key: "inputRef",
+        ref: t,
         type: "file",
         id: "file",
         multiple: !0,
-        onChange: m,
-        onClick: o[0] || (o[0] = F(() => {
+        onChange: b,
+        onClick: s[0] || (s[0] = x(() => {
         }, ["stop"]))
-      }, null, 32)
+      }, null, 544),
+      (g(!0), f(j, null, B(a.value, (e, p) => (g(), f("li", {
+        class: "list-group-item",
+        key: p
+      }, [
+        v("span", null, S(e.name), 1),
+        e.state === "pending" ? (g(), f("span", E, "上传进度")) : U("", !0),
+        e.state === "pending" ? (g(), f("div", I, [
+          v("div", {
+            role: "progressbar",
+            class: "progress-bar",
+            style: K(`width:${u.value}%;`),
+            "aria-valuenow": u.value,
+            "aria-valuemin": "0",
+            "aria-valuemax": "100"
+          }, S(u.value) + "%", 13, M)
+        ])) : U("", !0)
+      ]))), 128))
     ]));
   }
-}), $ = [U], x = function(h) {
-  $.forEach((s) => {
-    h.component(s.name, s);
+}), N = /* @__PURE__ */ O(R, [["__scopeId", "data-v-06a4eff6"]]), V = [N], A = function(i) {
+  V.forEach((t) => {
+    i.component(t.name, t);
   });
-}, y = { install: x };
+}, P = { install: A };
 export {
-  y as default
+  P as default
 };
