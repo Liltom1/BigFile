@@ -1,19 +1,17 @@
 <template>
   <div>
-    <button @click="startUpload" @keydown.self.enter.space="handleKeydown">开始上传</button>
-    <input style="display: none;" ref="inputRef" type="file" id="file" :multiple="true" @change="handleChange"
-      @click.stop>
+    <upload-content :on-change="handleChange"></upload-content>
     <UploadList :uploadFiles="uploadFiles" :percentage="percentage" />
   </div>
 </template>
 <script lang='js' setup name="BigFileUpload">
 import { ref, reactive, shallowRef } from 'vue'
 import UploadList from './upload-list.vue'
+import uploadContent from './upload-content.vue'
 defineOptions({
   name: 'BigFileUpload'
 })
-//大型数据结构的性能优化 
-const inputRef = shallowRef()
+
 const worker = new Worker('../worker.js')
 const chunks = [];
 const props = defineProps({
@@ -31,16 +29,6 @@ const props = defineProps({
 })
 
 const uploadFiles = ref([]);
-console.log(props.options);
-
-const handleKeydown = () => {
-  startUpload()
-}
-
-const startUpload = () => {
-  inputRef.value.value = ''
-  inputRef.value.click()
-}
 
 const handleChange = (e) => {
   // inputRef.value.click()
