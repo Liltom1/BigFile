@@ -19,7 +19,7 @@
     </ul>
 </template>
 
-<script setup lang='ts'>
+<script setup lang='js'>
 import { ref, reactive } from 'vue'
 import Progress from '../Progress/index.vue'
 const props = defineProps({

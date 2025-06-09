@@ -26,9 +26,17 @@ const props = defineProps({
       }
     },
   },
+  onChange: {
+    type: Function,
+    default: () => {}
+  },
+  fileList: {
+    type: Array,
+    default: () => []
+  }
 })
 
-const uploadFiles = ref([]);
+const uploadFiles =   ref([]);
 
 const handleChange = (e) => {
   // inputRef.value.click()
@@ -95,6 +103,8 @@ worker.onmessage = async function (e) {
   }
   uploadFiles.value = [...uploadFiles.value];
   percentage.value = 0; // 重置进度条
+
+  props.onChange(uploadFiles.value[fileIndex], uploadFiles.value);
   console.log('所有分片上传完毕，文件已合并');
 }
 
