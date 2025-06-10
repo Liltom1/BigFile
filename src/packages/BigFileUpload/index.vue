@@ -1,7 +1,7 @@
 <template>
   <div>
     <upload-content :on-change="handleChange"></upload-content>
-    <UploadList :uploadFiles="uploadFiles" :percentage="percentage" />
+    <UploadList :uploadFiles="uploadFiles" :percentage="percentage" @removeFile="removeFile" />
   </div>
 </template>
 <script lang='js' setup name="BigFileUpload">
@@ -23,6 +23,7 @@ const props = defineProps({
         uploadFileUrl: '',
         mergeFileUrl: '',
         chunkSize: 1024 * 1024 * 5, // 5MB
+        CONCURRENT_LIMIT: 5, // 并发上传限制
       }
     },
   },
@@ -36,7 +37,7 @@ const props = defineProps({
   }
 })
 
-const uploadFiles =   ref([]);
+const uploadFiles =  ref([]);
 
 const handleChange = (e) => {
   // inputRef.value.click()
@@ -68,7 +69,7 @@ const percentage = ref(0);
 
 worker.onmessage = async function (e) {
   // console.log(e, 'e');
-  inputRef.value.value = ''
+  // inputRef.value.value = ''
   const { filename, hash } = e.data;
   const res = await fetch(`${props.options.checkFileUrl}?hash=${hash}`)
   const { files } = await res.json(); //接收后端反文件，如果后端已存在文件直接将文件返回，如果没有就返回空数组
@@ -80,7 +81,7 @@ worker.onmessage = async function (e) {
   })
 
 
-  const CONCURRENT_LIMIT = 3; // 并发数
+  const CONCURRENT_LIMIT = props.options.CONCURRENT_LIMIT; // 并发数
   const total = tasks.length;
   for (let i = 0; i < total; i += CONCURRENT_LIMIT) {
     await Promise.all(
@@ -104,10 +105,10 @@ worker.onmessage = async function (e) {
   uploadFiles.value = [...uploadFiles.value];
   percentage.value = 0; // 重置进度条
 
-  props.onChange(uploadFiles.value[fileIndex], uploadFiles.value);
+  props.onChange(uploadFiles.value[fileIndex], uploadFiles.value , 'add');
+
   console.log('所有分片上传完毕，文件已合并');
 }
-
 
 const uploadChunk = async (chunk, index, filename, hash ,total) => {
   const formData = new FormData();
@@ -142,6 +143,14 @@ const uploadChunk = async (chunk, index, filename, hash ,total) => {
 
 
 };
+
+const removeFile = (fileitem) => {
+  console.log(fileitem,'file');
+  //更新文件状态为已上传
+  uploadFiles.value = [...uploadFiles.value.filter(file => file.name !== fileitem.name)];
+  
+  props.onChange(fileitem, uploadFiles.value, 'remove');
+}
 
 </script>
 <style scoped>

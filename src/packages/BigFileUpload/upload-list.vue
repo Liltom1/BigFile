@@ -2,25 +2,17 @@
     <ul class="list-group">
         <li class="list-group-item" v-for="(file, index) in uploadFiles" :key="index" :tabindex="index">
             <div class="list-group-item-info">
-                <p>
-                    <span>{{ file.name }}</span>
-                    <span v-if="file.state === 'pending'">上传进度</span>
-                </p>
-                <Progress v-if="file.state === 'pending'" :percentage="Number(percentage)" />
+                <span>{{ file.name }}</span>
+                <span v-if="file.state === 'pending'">上传进度</span>
+                <label class="list-group-item-label" @click="removeFile(file)" >x</label>
             </div>
-            <label class="list-group-item-label">
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <path d="M10 10l5.09-5.09L10 10l5.09 5.09L10 10zm0 0L4.91 4.91 10 10l-5.09 5.09L10 10z"
-                            stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round"
-                            stroke-linejoin="round"></path>
-                    </svg>
-            </label>
+            <Progress v-if="file.state === 'pending'" :percentage="Number(percentage)" />
         </li>
     </ul>
 </template>
 
 <script setup lang='js'>
-import { ref, reactive } from 'vue'
+import { ref, reactive, defineEmits } from 'vue'
 import Progress from '../Progress/index.vue'
 const props = defineProps({
     uploadFiles: {
@@ -33,6 +25,11 @@ const props = defineProps({
     },
 })
 
+const emit = defineEmits(['removeFile'])
+
+function removeFile (file) {
+    emit('removeFile', file)
+}
 
 </script>
 
@@ -56,12 +53,12 @@ const props = defineProps({
 }
 
 .list-group-item :hover {
-    
     background-color: #ccc7c7;
-
+    border: 1px solid black;
 }
 
 .list-group-item-info {
+    position: relative;
     display: inline-flex;
     justify-content: center;
     flex-direction: column;
