@@ -2,9 +2,10 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 // import BigFileUpload from 'bigfilesupload'
-// import BigFileUpload from '../dist/bigFileUpload.js'
+import BigFileUpload from '../dist/bigFileUpload.js'
+import '../dist/bigFileUpload.css'
 
 
 export const app = createApp(App)
-// app.use(BigFileUpload)
+app.use(BigFileUpload)
 app.mount('#app')

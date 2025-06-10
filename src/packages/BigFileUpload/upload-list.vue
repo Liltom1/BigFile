@@ -28,6 +28,10 @@ const props = defineProps({
 const emit = defineEmits(['removeFile'])
 
 function removeFile (file) {
+    if (file.state === 'pending') {
+        alert('文件正在上传中，请稍后再删除');
+        return;
+    }
     emit('removeFile', file)
 }
 

@@ -1,9 +1,9 @@
 <template>
-  <BigFileUpload :options="options" :file-list="fileList" :on-change="handleChange"></BigFileUpload>
+  <BigFileUpload :options="options" :file-list="fileList" :on-change="handleChange" ></BigFileUpload>
 </template>
 
 <script setup>
-import BigFileUpload from './packages/BigFileUpload/index.vue'
+// import BigFileUpload from './packages/BigFileUpload/index.vue'
 import { ref, reactive } from 'vue'
 
 const fileList = ref([])
