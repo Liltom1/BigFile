@@ -41,28 +41,33 @@ let currentFile = null
 
 //存放上传文件的数组
 const uploadFiles =  ref([]);
-
+let waitFiles = [];
 const handleChange = async (e) => {
   const file = e.target.files;
-  const fs = file[0]; //读取文件内容
-  fs.state = 'pending'; //设置文件状态为待上传
-  currentFile = fs; //将当前文件存储到currentFile中
-  
-  uploadFiles.value = [...uploadFiles.value, fs];
-  const total = Math.ceil(fs.size / props.options.chunkSize); //切割的总数 也就是我们要掉23次接口
+  if (!file || file.length === 0) {
+    return;
+  }
+  console.log(file, 'file');
+  currentFile = file[0]; //将当前文件存储到currentFile中
+  for (let i = 0; i < file.length; i++) {
+    const fs = file[i]; //读取文件内容
+    fs.state = 'pending'; //设置文件状态为等待
+    waitFiles.push(fs);
+  }
+  uploadFiles.value = [...uploadFiles.value, currentFile];
+  const total = Math.ceil(currentFile.size / props.options.chunkSize); //切割的总数 也就是我们要掉23次接口
 
   //0-5 5-10 10-15 15-20 20-25 将文件分装成5M的块 并放入chunks数组中 props.options.chunkSize是按大小多少进行切分
-  chunks.push(...Array.from({ length: total }, (_, i) => fs.slice(i * props.options.chunkSize, (i + 1) * props.options.chunkSize)));
+  chunks.push(...Array.from({ length: total }, (_, i) => currentFile.slice(i * props.options.chunkSize, (i + 1) * props.options.chunkSize)));
 
   console.log(chunks, 'chunks');
   //将切片数组传到web worker，多线程脚本运行上传到后端
   //向worker.js发送消息  worker.js会接收这个消息
   worker.postMessage({
     chunks,
-    filename: fs.name,
+    filename: currentFile.name,
   });
 
-  console.log(worker, 'worker');
 }
 
 const percentage = ref(0);
@@ -113,6 +118,25 @@ worker.onmessage = async function (e) {
   }
   uploadFiles.value = [...uploadFiles.value];
   percentage.value = 0; // 重置进度条
+  const c = waitFiles.filter((item,index) => {
+    if (item.name !== filename) {
+      return true;
+    }else{
+      return false;
+    }
+  })
+  console.log('待上传文件:', c);
+  
+  waitFiles = []
+  if (c.length > 0) {
+    const obj = {
+      target: {
+        files: c
+      }
+    }
+    handleChange(obj); // 继续处理下一个文件
+    return
+  }
   props.onChange(uploadFiles.value[fileIndex], uploadFiles.value , 'add');
   console.log('所有分片上传完毕，文件已合并');
 }
@@ -152,10 +176,9 @@ const uploadChunk = async (chunk, index, filename, hash ,total) => {
 };
 
 const removeFile = (fileitem) => {
-  console.log(fileitem,'file');
+  // console.log(fileitem,'file');
   //更新文件状态为已上传
   uploadFiles.value = [...uploadFiles.value.filter(file => file.name !== fileitem.name)];
-  
   props.onChange(fileitem, uploadFiles.value, 'remove');
 }
 
