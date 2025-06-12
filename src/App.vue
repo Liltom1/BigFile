@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import BigFileUpload from './packages/BigFileUpload/index.vue'
+// import BigFileUpload from './packages/BigFileUpload/index.vue'
 import { ref, reactive } from 'vue'
 
 const fileList = ref([])
@@ -18,6 +18,7 @@ const options = ref({
 
 
 const handleChange = (file,files,type) => {
+  //type 参数有两种：'add' | 'remove' 用来区分，新增还是删除
   fileList.value = files
   console.log('File selected:', file);
   console.log('Files array:', files);

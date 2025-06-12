@@ -10,7 +10,7 @@
     "package": "vite build --target lib ./src/packages/index.js --name bigFileUpload --dest bigFileUpload"
   },
   "dependencies": {
-    "bigfilesupload": "^1.0.1",
+    "bigfilesupload": "^1.1.0",
     "vue": "^3.5.13"
   },
   "devDependencies": {

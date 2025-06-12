@@ -1,10 +1,10 @@
-import { createElementBlock as m, openBlock as d, createElementVNode as f, normalizeStyle as S, toDisplayString as R, Fragment as M, renderList as T, createBlock as j, createCommentVNode as b, shallowRef as z, withKeys as L, withModifiers as I, ref as N, createVNode as U } from "vue";
-const C = (n, s) => {
-  const t = n.__vccOpts || n;
-  for (const [a, e] of s)
-    t[a] = e;
-  return t;
-}, B = { class: "progress progress-striped active" }, P = ["aria-valuenow"], K = /* @__PURE__ */ Object.assign({
+import { createElementBlock as v, openBlock as h, createElementVNode as _, normalizeStyle as T, toDisplayString as j, Fragment as z, renderList as L, createBlock as B, createCommentVNode as I, shallowRef as P, withKeys as K, withModifiers as N, ref as U, createVNode as R } from "vue";
+const x = (a, s) => {
+  const o = a.__vccOpts || a;
+  for (const [l, r] of s)
+    o[l] = r;
+  return o;
+}, A = { class: "progress progress-striped active" }, D = ["aria-valuenow"], V = /* @__PURE__ */ Object.assign({
   name: "Progress"
 }, {
   __name: "index",
@@ -14,21 +14,21 @@ const C = (n, s) => {
       default: 0
     }
   },
-  setup(n) {
-    return (s, t) => (d(), m("div", null, [
-      f("div", B, [
-        f("div", {
+  setup(a) {
+    return (s, o) => (h(), v("div", null, [
+      _("div", A, [
+        _("div", {
           role: "progressbar",
           class: "progress-bar",
-          style: S(`width:${n.percentage}%;`),
-          "aria-valuenow": n.percentage,
+          style: T(`width:${a.percentage}%;`),
+          "aria-valuenow": a.percentage,
           "aria-valuemin": "0",
           "aria-valuemax": "100"
-        }, R(n.percentage) + "%", 13, P)
+        }, j(a.percentage) + "%", 13, D)
       ])
     ]));
   }
-}), E = /* @__PURE__ */ C(K, [["__scopeId", "data-v-fc41b854"]]), A = { class: "list-group" }, D = ["tabindex"], V = { class: "list-group-item-info" }, W = { key: 0 }, q = ["onClick"], G = {
+}), E = /* @__PURE__ */ x(V, [["__scopeId", "data-v-fc41b854"]]), W = { class: "list-group" }, q = ["tabindex"], G = { class: "list-group-item-info" }, H = { key: 0 }, J = ["onClick"], Q = {
   __name: "upload-list",
   props: {
     uploadFiles: {
@@ -41,37 +41,37 @@ const C = (n, s) => {
     }
   },
   emits: ["removeFile"],
-  setup(n, { emit: s }) {
-    const t = s;
-    function a(e) {
-      if (e.state === "pending") {
+  setup(a, { emit: s }) {
+    const o = s;
+    function l(r) {
+      if (r.state === "pending") {
         alert("文件正在上传中，请稍后再删除");
         return;
       }
-      t("removeFile", e);
+      o("removeFile", r);
     }
-    return (e, h) => (d(), m("ul", A, [
-      (d(!0), m(M, null, T(n.uploadFiles, (r, y) => (d(), m("li", {
+    return (r, e) => (h(), v("ul", W, [
+      (h(!0), v(z, null, L(a.uploadFiles, (c, y) => (h(), v("li", {
         class: "list-group-item",
         key: y,
         tabindex: y
       }, [
-        f("div", V, [
-          f("span", null, R(r.name), 1),
-          r.state === "pending" ? (d(), m("span", W, "上传进度")) : b("", !0),
-          f("label", {
+        _("div", G, [
+          _("span", null, j(c.name), 1),
+          c.state === "pending" ? (h(), v("span", H, "上传进度")) : I("", !0),
+          _("label", {
             class: "list-group-item-label",
-            onClick: ($) => a(r)
-          }, "x", 8, q)
+            onClick: (k) => l(c)
+          }, "x", 8, J)
         ]),
-        r.state === "pending" ? (d(), j(E, {
+        c.state === "pending" ? (h(), B(E, {
           key: 0,
-          percentage: Number(n.percentage)
-        }, null, 8, ["percentage"])) : b("", !0)
-      ], 8, D))), 128))
+          percentage: Number(a.percentage)
+        }, null, 8, ["percentage"])) : I("", !0)
+      ], 8, q))), 128))
     ]));
   }
-}, H = /* @__PURE__ */ C(G, [["__scopeId", "data-v-a3099391"]]), J = ["onKeydown"], Q = {
+}, X = /* @__PURE__ */ x(Q, [["__scopeId", "data-v-40492e41"]]), Y = ["onKeydown"], Z = {
   __name: "upload-content",
   props: {
     onChange: {
@@ -80,32 +80,32 @@ const C = (n, s) => {
       }
     }
   },
-  setup(n) {
-    const s = z(), t = () => {
-      a();
-    }, a = () => {
+  setup(a) {
+    const s = P(), o = () => {
+      l();
+    }, l = () => {
       s.value.value = "", s.value.click();
     };
-    return (e, h) => (d(), m("div", null, [
-      f("button", {
+    return (r, e) => (h(), v("div", null, [
+      _("button", {
         class: "uploadButton",
-        onClick: a,
-        onKeydown: L(I(t, ["self"]), ["enter", "space"])
-      }, "+ 点击上传", 40, J),
-      f("input", {
+        onClick: l,
+        onKeydown: K(N(o, ["self"]), ["enter", "space"])
+      }, "+ 点击上传", 40, Y),
+      _("input", {
         style: { display: "none" },
         ref_key: "inputRef",
         ref: s,
         type: "file",
         id: "file",
         multiple: !0,
-        onChange: h[0] || (h[0] = (...r) => n.onChange && n.onChange(...r)),
-        onClick: h[1] || (h[1] = I(() => {
+        onChange: e[0] || (e[0] = (...c) => a.onChange && a.onChange(...c)),
+        onClick: e[1] || (e[1] = N(() => {
         }, ["stop"]))
       }, null, 544)
     ]));
   }
-}, X = /* @__PURE__ */ C(Q, [["__scopeId", "data-v-cc48dd66"]]), Y = /* @__PURE__ */ Object.assign({
+}, ee = /* @__PURE__ */ x(Z, [["__scopeId", "data-v-d97b4021"]]), te = /* @__PURE__ */ Object.assign({
   name: "BigFileUpload"
 }, {
   __name: "index",
@@ -132,63 +132,84 @@ const C = (n, s) => {
       default: () => []
     }
   },
-  setup(n) {
-    const s = new Worker("../worker.js"), t = [], a = n, e = N([]), h = async (c) => {
-      const i = c.target.files[0];
-      i.state = "pending", e.value = [...e.value, i];
-      const _ = Math.ceil(i.size / a.options.chunkSize);
-      t.push(...Array.from({ length: _ }, (v, u) => i.slice(u * a.options.chunkSize, (u + 1) * a.options.chunkSize))), console.log(t, "chunks"), s.postMessage({
-        chunks: t,
-        filename: i.name
-      }), console.log(s, "worker");
-    }, r = N(0);
-    s.onmessage = async function(c) {
-      const { filename: l, hash: i } = c.data, _ = await fetch(`${a.options.checkFileUrl}?hash=${i}`), { files: v, isExist: u } = await _.json();
-      let g = e.value.findIndex((o) => o.name === l);
-      if (u && v.length === 0 && e.value[g].state === "uploaded") {
-        e.value = [...e.value.filter((o) => o.state !== "pending")], alert("文件已上传过，无需重复上传");
+  setup(a) {
+    const s = new Worker("../worker.js"), o = [], l = a;
+    let r = null;
+    const e = U([]);
+    let c = [];
+    const y = async (u) => {
+      const t = u.target.files;
+      if (!t || t.length === 0)
+        return;
+      console.log(t, "file"), r = t[0];
+      for (let p = 0; p < t.length; p++) {
+        const i = t[p];
+        i.state = "pending", c.push(i);
+      }
+      e.value = [...e.value, r];
+      const g = Math.ceil(r.size / l.options.chunkSize);
+      o.push(...Array.from({ length: g }, (p, i) => r.slice(i * l.options.chunkSize, (i + 1) * l.options.chunkSize))), console.log(o, "chunks"), s.postMessage({
+        chunks: o,
+        filename: r.name
+      });
+    }, k = U(0);
+    s.onmessage = async function(u) {
+      const { filename: t, hash: g } = u.data, p = await fetch(`${l.options.checkFileUrl}?hash=${g}`), { files: i, isExist: f } = await p.json();
+      let m = e.value.findIndex((n) => n.name === t);
+      if (f && i.length === 0 && e.value[m].state === "uploaded") {
+        e.value = [...e.value.filter((n) => n.state !== "pending")], alert("文件已上传过，无需重复上传");
         return;
       }
-      const p = new Set(v), x = t.map((o, w) => ({ chunk: o, index: w })).filter(({ index: o }) => !p.has(`${l}-${o}`)), F = a.options.CONCURRENT_LIMIT, k = x.length;
-      for (let o = 0; o < k; o += F)
+      const d = new Set(i), $ = o.map((n, w) => ({ chunk: n, index: w })).filter(({ index: n }) => !d.has(`${t}-${n}`)), C = l.options.CONCURRENT_LIMIT, F = $.length;
+      for (let n = 0; n < F; n += C)
         await Promise.all(
-          x.slice(o, o + F).map((w, O) => y(w.chunk, o + O, l, i, k))
-        ), console.log(`已上传 ${Math.min(o + F, k)}/${k}`);
-      await fetch(`${a.options.mergeFileUrl}?hash=${i}&filename=${l}`), t.length = 0, g = e.value.findIndex((o) => o.name === l), g !== -1 && (e.value[g].state = "uploaded"), e.value = [...e.value], r.value = 0, a.onChange(e.value[g], e.value, "add"), console.log("所有分片上传完毕，文件已合并");
+          $.slice(n, n + C).map((w, M) => O(w.chunk, n + M, t, g, F))
+        ), console.log(`已上传 ${Math.min(n + C, F)}/${F}`);
+      await fetch(`${l.options.mergeFileUrl}?hash=${g}&filename=${t}`), o.length = 0, m = e.value.findIndex((n) => n.name === t), m !== -1 && (e.value[m].state = "uploaded"), e.value = [...e.value], k.value = 0;
+      const b = c.filter((n, w) => n.name !== t);
+      if (console.log("待上传文件:", b), c = [], b.length > 0) {
+        y({
+          target: {
+            files: b
+          }
+        });
+        return;
+      }
+      l.onChange(e.value[m], e.value, "add"), console.log("所有分片上传完毕，文件已合并");
     };
-    const y = async (c, l, i, _, v) => {
-      const u = new FormData();
-      return u.append("filename", i), u.append("hash", _), u.append("index", l), u.append("file", c), new Promise((g) => {
-        fetch(a.options.uploadFileUrl, {
+    const O = async (u, t, g, p, i) => {
+      const f = new FormData();
+      return f.append("filename", g), f.append("hash", p), f.append("index", t), f.append("file", u), new Promise((m) => {
+        fetch(l.options.uploadFileUrl, {
           method: "POST",
-          body: u
-        }).then((p) => {
-          if (console.log("上传分片:", l, "响应状态:", p.status), p.status === 200)
-            return g(p.json());
+          body: f
+        }).then((d) => {
+          if (console.log("上传分片:", t, "响应状态:", d.status), d.status === 200)
+            return m(d.json());
           throw new Error("网络错误");
-        }).then((p) => {
-          t.length === v ? r.value = ((l + 1) / t.length).toFixed(2) * 100 : r.value = ((l + 1 + (t.length - v)) / t.length).toFixed(2) * 100;
-        }).catch((p) => {
-          console.error("上传失败:", p);
+        }).then((d) => {
+          o.length === i ? k.value = ((t + 1) / o.length).toFixed(2) * 100 : k.value = ((t + 1 + (o.length - i)) / o.length).toFixed(2) * 100;
+        }).catch((d) => {
+          console.error("上传失败:", d);
         });
       });
-    }, $ = (c) => {
-      console.log(c, "file"), e.value = [...e.value.filter((l) => l.name !== c.name)], a.onChange(c, e.value, "remove");
+    }, S = (u) => {
+      e.value = [...e.value.filter((t) => t.name !== u.name)], l.onChange(u, e.value, "remove");
     };
-    return (c, l) => (d(), m("div", null, [
-      U(X, { "on-change": h }),
-      U(H, {
+    return (u, t) => (h(), v("div", null, [
+      R(ee, { "on-change": y }),
+      R(X, {
         uploadFiles: e.value,
-        percentage: r.value,
-        onRemoveFile: $
+        percentage: k.value,
+        onRemoveFile: S
       }, null, 8, ["uploadFiles", "percentage"])
     ]));
   }
-}), Z = [Y, E], ee = function(n) {
-  Z.forEach((s) => {
-    n.component(s.name, s);
+}), ne = [te, E], oe = function(a) {
+  ne.forEach((s) => {
+    a.component(s.name, s);
   });
-}, ne = { install: ee };
+}, le = { install: oe };
 export {
-  ne as default
+  le as default
 };

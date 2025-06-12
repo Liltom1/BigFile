@@ -47,7 +47,7 @@ function removeFile (file) {
 
 .list-group-item {
     font-size: 14px;
-    color: black;
+    color: #606266;
     margin-bottom: 5px;
     position: relative;
     box-sizing: border-box;
@@ -57,8 +57,7 @@ function removeFile (file) {
 }
 
 .list-group-item :hover {
-    background-color: #ccc7c7;
-    border: 1px solid black;
+    background-color: #f5f7fa;
 }
 
 .list-group-item-info {
@@ -68,10 +67,6 @@ function removeFile (file) {
     flex-direction: column;
     width: calc(100% - 0px);
     margin-left: 4px;
-}
-
-.list-group-item-label:hover + .list-group-item-info{
-    background-color: #ccc7c7;
 }
 
 .list-group-item-label {
@@ -86,8 +81,8 @@ function removeFile (file) {
     /* transition: opacity 0s; */
 }
 
-.list-group-item-label:hover ~ .list-group-item {
-    background-color: #ccc7c7;
+.list-group-item-label:hover {
+    color: #409eff;
 }
 
 p {
